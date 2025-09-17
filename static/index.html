@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FastAPI Email Sender — Simple HTML Client</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;margin:28px;background:#f7f9fb}
+    .card{background:#fff;border-radius:10px;box-shadow:0 6px 20px rgba(20,30,50,0.08);max-width:760px;margin:0 auto;padding:20px}
+    h1{font-size:20px;margin:0 0 12px}
+    label{display:block;margin-top:10px;font-size:13px}
+    input[type=text], textarea{width:100%;padding:10px;border:1px solid #e1e7ef;border-radius:6px;margin-top:6px;font-size:14px}
+    textarea{min-height:120px;resize:vertical}
+    .actions{display:flex;gap:10px;margin-top:14px}
+    button{background:#2563eb;color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+    pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:6px;overflow:auto}
+    .note{font-size:13px;color:#555;margin-top:8px}
+    .small{font-size:12px;color:#666}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>FastAPI Email Sender — Client</h1>
+    <p class="note">This client only collects the fields required by your updated FastAPI endpoint. The sender credentials (email and app password) must be set as environment variables on the server side (<code>SENDER_EMAIL</code> and <code>SENDER_PASSWORD</code>).</p>
+
+    <label for="receiver_email">Receiver Email</label>
+    <input id="receiver_email" type="text" placeholder="friend@example.com" />
+
+    <label for="subject">Subject</label>
+    <input id="subject" type="text" placeholder="Subject" />
+
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="Email body..."></textarea>
+
+    <div class="actions">
+      <button id="sendBtn">Send Email</button>
+      <button id="clearBtn" type="button">Clear</button>
+    </div>
+
+    <h3 style="margin-top:18px">Response</h3>
+    <pre id="response">(no response yet)</pre>
+
+    <p class="small">If you serve this file from a different origin than your FastAPI server, enable CORS on the FastAPI side (or serve this static file from the same origin). Example middleware to add in FastAPI:</p>
+    <pre class="small">from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])</pre>
+  </div>
+
+  <script>
+    const base = window.location.origin || 'http://127.0.0.1:8000';
+    const apiRoot = (base === 'null') ? 'http://127.0.0.1:8000' : base;
+
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const respPre = document.getElementById('response');
+
+    async function sendEmail() {
+      const payload = {
+        receiver_email: document.getElementById('receiver_email').value.trim(),
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value
+      };
+
+      // basic client-side validation
+      if (!payload.receiver_email) { respPre.textContent = 'Receiver email is required'; return; }
+      if (!payload.subject) { respPre.textContent = 'Subject is required'; return; }
+      if (!payload.message) { respPre.textContent = 'Message is required'; return; }
+
+      respPre.textContent = 'Sending...';
+
+      try {
+        const res = await fetch(apiRoot + '/send_email/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({ status: res.status, text: 'Non-JSON response' }));
+        respPre.textContent = JSON.stringify({ httpStatus: res.status, body: data }, null, 2);
+      } catch (err) {
+        respPre.textContent = 'Network error: ' + err.message;
+      }
+    }
+
+    sendBtn.addEventListener('click', (e) => { e.preventDefault(); sendEmail(); });
+    clearBtn.addEventListener('click', (e) => {
+      document.getElementById('receiver_email').value = '';
+      document.getElementById('subject').value = '';
+      document.getElementById('message').value = '';
+      respPre.textContent = '(no response yet)';
+    });
+  </script>
+</body>
+</html>
