@@ -1,0 +1,16 @@
+{
+  "subjects": [
+    "Daily Update",
+    "Reminder",
+    "Notification",
+    "Greetings",
+    "Alert"
+  ],
+  "messages": [
+    "This is a system-generated message. Have a great day!",
+    "Your account activity was detected recently.",
+    "Reminder: Complete your pending tasks.",
+    "Greetings from the FastAPI Mailer!",
+    "Security Alert: Please verify your login activity."
+  ]
+}
