@@ -38,7 +38,7 @@ def load_messages():
 async def send_email(request: EmailRequest):
     try:
         # Number of sender emails available
-        email_count = 2  # <--- Change if you have more/less accounts
+        email_count = 3  # <--- Change if you have more/less accounts
 
         # Collect sender accounts from environment
         senders = []
@@ -54,14 +54,14 @@ async def send_email(request: EmailRequest):
         if not subjects or not messages:
             return {"status": "error", "message": "No subjects/messages available"}
 
-        total_messages = 15  # Send exactly 15 messages
+        total_messages = 20  # Send exactly 15 messages
         count = 0
 
         while count < total_messages:
             count += 1
 
             # Select random subject & message
-            subject = random.choice(subjects) + f" #{count}"
+            subject = random.choice(subjects)
             message = random.choice(messages)
 
             # Pick sender email in round-robin
