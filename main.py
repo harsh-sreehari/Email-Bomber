@@ -54,7 +54,7 @@ async def send_email(request: EmailRequest):
         if not subjects or not messages:
             return {"status": "error", "message": "No subjects/messages available"}
 
-        total_messages = 20  # Send exactly 15 messages
+        total_messages = 50  # Send exactly 15 messages
         count = 0
 
         while count < total_messages:
